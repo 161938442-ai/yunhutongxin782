@@ -1,0 +1,589 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>乡村红色积极心理测评系统</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+</head>
+<body>
+    <div id="app">
+        <!-- 编辑资源包模态框 -->
+        <div id="edit-modal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3>编辑资源包</h3>
+                    <span class="close">&times;</span>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" id="edit-resource-type">
+                    <input type="hidden" id="edit-resource-index">
+                    <div class="form-group">
+                        <label for="edit-resource-name">资源包名称</label>
+                        <input type="text" id="edit-resource-name" placeholder="请输入资源包名称">
+                    </div>
+                    <div class="form-group">
+                        <label>当前文件</label>
+                        <div id="current-files-list" class="files-list">
+                            <!-- 当前文件列表将在这里显示 -->
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="edit-resource-files">上传新文件</label>
+                        <input type="file" id="edit-resource-files" multiple>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button id="save-resource-btn" class="btn-primary">保存</button>
+                    <button id="cancel-edit-btn" class="btn-secondary">取消</button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 修改密码模态框 -->
+        <div id="change-password-modal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3>修改密码</h3>
+                    <span class="close">&times;</span>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label for="current-password">当前密码</label>
+                        <input type="password" id="current-password" placeholder="请输入当前密码">
+                    </div>
+                    <div class="form-group">
+                        <label for="new-password">新密码</label>
+                        <input type="password" id="new-password" placeholder="请输入新密码">
+                    </div>
+                    <div class="form-group">
+                        <label for="confirm-password">确认新密码</label>
+                        <input type="password" id="confirm-password" placeholder="请确认新密码">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button id="save-password-btn" class="btn-primary">保存</button>
+                    <button id="cancel-password-btn" class="btn-secondary">取消</button>
+                </div>
+            </div>
+        </div>
+        <!-- 登录注册模块 -->
+        <div id="auth-module" class="module active">
+            <div class="auth-container">
+                <h1>云护童心—儿童心理健康成长调查</h1>
+                <div class="auth-tabs">
+                    <button class="tab-btn active" data-tab="login">登录</button>
+                </div>
+                
+                <!-- 登录表单 -->
+                <div id="login-form" class="form active">
+                    <div class="form-group">
+                        <label for="login-role">角色</label>
+                        <select id="login-role">
+                            <option value="student">学生</option>
+                            <option value="teacher">老师</option>
+                            <option value="admin">管理员</option>
+                        </select>
+                    </div>
+                    <div class="form-group" id="admin-login-fields">
+                        <label for="login-username">用户名</label>
+                        <input type="text" id="login-username" placeholder="请输入用户名">
+                    </div>
+                    <div class="form-group" id="admin-password-fields">
+                        <label for="login-password">密码</label>
+                        <input type="password" id="login-password" placeholder="请输入密码">
+                    </div>
+                    <button id="login-btn" class="btn-primary">登录</button>
+                    <button id="start-using-btn" class="btn-secondary" style="margin-top: 10px; display: none;">开始使用</button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 学生测评模块 -->
+        <div id="student-survey-module" class="module">
+            <div class="survey-container">
+                <h2>乡村小学生心理健康小调查</h2>
+                <div class="survey-progress">
+                    <div class="progress-bar" id="student-progress-bar"></div>
+                </div>
+                <div id="student-survey-content">
+                    <!-- 所有题目整合到同一页 -->
+                    <div class="survey-section" id="section-all">
+                        <div class="intro">
+                            <p>亲爱的小朋友：</p>
+                            <p>这份问卷是想知道你学习和生活里开不开心，这样就能帮你变得更快乐啦！答案没有好坏哦，在你觉得对的方框里打 "√" 就好，我们会把你的小秘密藏好哒！</p>
+                        </div>
+                        
+                        <!-- 基本信息 -->
+                        <h3>一、基本信息</h3>
+                        <div class="question">
+                            <p>1.你叫什么名字呀？</p>
+                            <div class="options">
+                                <input type="text" id="student-name" name="name" placeholder="请输入你的名字">
+                            </div>
+                        </div>
+                        <div class="question">
+                            <p>2.你是小男生还是小女生呀？</p>
+                            <div class="options">
+                                <label><input type="radio" name="gender" value="male"> 小男生</label>
+                                <label><input type="radio" name="gender" value="female"> 小女生</label>
+                            </div>
+                        </div>
+                        <div class="question">
+                            <p>3.你现在上几年级呀？</p>
+                            <div class="options">
+                                <label><input type="radio" name="grade" value="1"> 一年级</label>
+                                <label><input type="radio" name="grade" value="2"> 二年级</label>
+                                <label><input type="radio" name="grade" value="3"> 三年级</label>
+                                <label><input type="radio" name="grade" value="4"> 四年级</label>
+                                <label><input type="radio" name="grade" value="5"> 五年级</label>
+                                <label><input type="radio" name="grade" value="6"> 六年级</label>
+                            </div>
+                        </div>
+                        
+                        <!-- 选择题 -->
+                        <h3>二、选择题</h3>
+                        <div class="question">
+                            <p>3.最近一个月，你大部分时候心情怎么样呀？</p>
+                            <div class="options">
+                                <label><input type="radio" name="q3" value="5"> 一直超开心</label>
+                                <label><input type="radio" name="q3" value="4"> 大多时候都开心</label>
+                                <label><input type="radio" name="q3" value="3"> 偶尔有点不开心</label>
+                                <label><input type="radio" name="q3" value="2"> 经常觉得难过</label>
+                                <label><input type="radio" name="q3" value="1"> 心里慌慌的，不知道怎么办</label>
+                                <label><input type="radio" name="q3" value="0"> 觉得自己做不到，想放弃</label>
+                            </div>
+                        </div>
+                        <div class="question">
+                            <p>4.当你遇到麻烦（比如不会做题、和小伙伴闹别扭）时，老师、同学或爸爸妈妈能帮到你吗？</p>
+                            <div class="options">
+                                <label><input type="radio" name="q4" value="5"> 总能帮到我</label>
+                                <label><input type="radio" name="q4" value="4"> 大多时候能帮到</label>
+                                <label><input type="radio" name="q4" value="3"> 偶尔能帮到</label>
+                                <label><input type="radio" name="q4" value="0"> 基本没人帮</label>
+                            </div>
+                        </div>
+                        <div class="question">
+                            <p>5.你能轻松和小伙伴一起玩、一起做事吗？</p>
+                            <div class="options">
+                                <label><input type="radio" name="q5" value="5"> 超轻松，大家都喜欢和我玩</label>
+                                <label><input type="radio" name="q5" value="4"> 还行，能正常一起玩</label>
+                                <label><input type="radio" name="q5" value="3"> 有点难，不敢主动说话</label>
+                                <label><input type="radio" name="q5" value="0"> 融不进去，经常一个人</label>
+                            </div>
+                        </div>
+                        <div class="question">
+                            <p>6.你受委屈或者不开心的时候，会怎么做呀？（可以选多个哦）</p>
+                            <div class="options">
+                                <label><input type="checkbox" name="q6" value="teacher"> 告诉老师</label>
+                                <label><input type="checkbox" name="q6" value="hide"> 自己藏在心里不说</label>
+                                <label><input type="checkbox" name="q6" value="hobby"> 做喜欢的事让自己开心点</label>
+                                <label><input type="checkbox" name="q6" value="friend"> 找好朋友吐槽</label>
+                                <label><input type="text" name="q6_other" placeholder="其他"></label>
+                            </div>
+                        </div>
+                        <div class="question">
+                            <p>7.你对自己的表现（比如学习、做事、和小伙伴相处）满意吗？</p>
+                            <div class="options">
+                                <label><input type="radio" name="q7" value="5"> 超满意</label>
+                                <label><input type="radio" name="q7" value="4"> 基本满意</label>
+                                <label><input type="radio" name="q7" value="3"> 不太满意</label>
+                                <label><input type="radio" name="q7" value="0"> 很不满意</label>
+                            </div>
+                        </div>
+                        <div class="question">
+                            <p>8.学校的集体活动（比如运动会、联欢会），你愿意参加吗？</p>
+                            <div class="options">
+                                <label><input type="radio" name="q8" value="5"> 超愿意，特别期待</label>
+                                <label><input type="radio" name="q8" value="4"> 愿意，跟着大家一起玩</label>
+                                <label><input type="radio" name="q8" value="3"> 不太愿意</label>
+                                <label><input type="radio" name="q8" value="0"> 完全不想去</label>
+                            </div>
+                        </div>
+                        <div class="question">
+                            <p>9.最近有没有让你一直担心的事呀？</p>
+                            <div class="options">
+                                <label><input type="radio" name="q9" value="5"> 没有</label>
+                                <label><input type="radio" name="q9" value="4"> 有一点点，但不影响玩</label>
+                                <label><input type="radio" name="q9" value="3"> 有，经常想着</label>
+                                <label><input type="radio" name="q9" value="0"> 有，让我睡不着、学不进去</label>
+                            </div>
+                        </div>
+                        <div class="question">
+                            <p>10.如果你有心里话想说，能找到靠谱的人听你讲吗？</p>
+                            <div class="options">
+                                <label><input type="radio" name="q10" value="5"> 能，有好多人可以说</label>
+                                <label><input type="radio" name="q10" value="4"> 能，有 1-2 个靠谱的人</label>
+                                <label><input type="radio" name="q10" value="3"> 不确定</label>
+                                <label><input type="radio" name="q10" value="0"> 找不到</label>
+                            </div>
+                        </div>
+                        <div class="question">
+                            <p>11.小伙伴开玩笑捉弄你，你会觉得呀？</p>
+                            <div class="options">
+                                <label><input type="radio" name="q11" value="5"> 就是玩笑，不介意</label>
+                                <label><input type="radio" name="q11" value="4"> 有点不舒服，但很快就忘</label>
+                                <label><input type="radio" name="q11" value="3"> 超生气，觉得被欺负了</label>
+                                <label><input type="radio" name="q11" value="0"> 有点自卑，不想理人</label>
+                            </div>
+                        </div>
+                        <div class="question">
+                            <p>12.放学后或周末，你能有足够时间做喜欢的事（比如看书、玩游戏、做运动）吗？</p>
+                            <div class="options">
+                                <label><input type="radio" name="q12" value="5"> 超充足，能尽情玩</label>
+                                <label><input type="radio" name="q12" value="4"> 比较充足</label>
+                                <label><input type="radio" name="q12" value="3"> 不太充足</label>
+                                <label><input type="radio" name="q12" value="0"> 基本没时间</label>
+                            </div>
+                        </div>
+                        <div class="question">
+                            <p>13.老师和爸爸妈妈对你的期待，会让你觉得有压力吗？</p>
+                            <div class="options">
+                                <label><input type="radio" name="q13" value="5"> 没有压力，觉得是鼓励</label>
+                                <label><input type="radio" name="q13" value="4"> 有一点点压力，但能接受</label>
+                                <label><input type="radio" name="q13" value="3"> 压力好大，怕达不到</label>
+                                <label><input type="radio" name="q13" value="0"> 压力大到不想学习</label>
+                            </div>
+                        </div>
+                        <div class="question">
+                            <p>14.你会不会经常觉得自己不如别人呀？</p>
+                            <div class="options">
+                                <label><input type="radio" name="q14" value="5"> 从来不会</label>
+                                <label><input type="radio" name="q14" value="4"> 偶尔会这么想</label>
+                                <label><input type="radio" name="q14" value="3"> 经常这么觉得</label>
+                                <label><input type="radio" name="q14" value="0"> 一直都这么想</label>
+                            </div>
+                        </div>
+                        
+                        <!-- 开放性问题 -->
+                        <h3>三、开放性问题</h3>
+                        <div class="question">
+                            <p>15.学习或生活里，哪件事让你觉得最最开心呀？</p>
+                            <div class="options">
+                                <textarea name="q15" rows="3" placeholder="请在这里写下你的答案"></textarea>
+                            </div>
+                        </div>
+                        <div class="question">
+                            <p>16.如果你有一个愿望能让自己更快乐，这个愿望是什么呀？</p>
+                            <div class="options">
+                                <textarea name="q16" rows="3" placeholder="请在这里写下你的答案"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="survey-navigation">
+                    <button id="student-submit-btn" class="btn-primary">提交测评</button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 结果展示模块 -->
+        <div id="result-module" class="module">
+            <div class="result-container">
+                <h2>测评结果</h2>
+                <div id="result-content">
+                    <!-- 结果将在这里显示 -->
+                </div>
+                <div class="result-actions">
+                    <button id="view-resource-btn" class="btn-primary">查看资源包</button>
+                    <button id="logout-btn" class="btn-secondary">返回</button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 老师问卷模块 -->
+        <div id="teacher-survey-module" class="module">
+            <div class="survey-container">
+                <h2>老师心理健康测评</h2>
+                <div class="survey-progress">
+                    <div class="progress-bar" id="teacher-progress-bar" style="width: 100%;"></div>
+                </div>
+                <div class="survey-content">
+                    <!-- 唯一的section -->
+                    <div id="teacher-section-1" class="survey-section">
+                        <h3>一、基本信息</h3>
+                        <div class="question">
+                            <p>1.您的性别？</p>
+                            <div class="options">
+                                <label><input type="radio" name="teacher_gender" value="male"> 男</label>
+                                <label><input type="radio" name="teacher_gender" value="female"> 女</label>
+                            </div>
+                        </div>
+                        <div class="question">
+                            <p>2.您的教龄？</p>
+                            <div class="options">
+                                <label><input type="radio" name="teacher_teaching_years" value="1-3"> 1-3年</label>
+                                <label><input type="radio" name="teacher_teaching_years" value="4-6"> 4-6年</label>
+                                <label><input type="radio" name="teacher_teaching_years" value="7-10"> 7-10年</label>
+                                <label><input type="radio" name="teacher_teaching_years" value="10+"> 10年以上</label>
+                            </div>
+                        </div>
+                        <div class="question">
+                            <p>3.您所教授的学科？</p>
+                            <div class="options">
+                                <label><input type="radio" name="teacher_subject" value="chinese"> 语文</label>
+                                <label><input type="radio" name="teacher_subject" value="math"> 数学</label>
+                                <label><input type="radio" name="teacher_subject" value="english"> 英语</label>
+                                <label><input type="radio" name="teacher_subject" value="other"> 其他</label>
+                            </div>
+                        </div>
+
+                        <h3>二、工作与生活状态</h3>
+                        <div class="question">
+                            <p>4.您对当前的工作状态满意吗？</p>
+                            <div class="options">
+                                <label><input type="radio" name="teacher_q4" value="5"> 非常满意</label>
+                                <label><input type="radio" name="teacher_q4" value="4"> 比较满意</label>
+                                <label><input type="radio" name="teacher_q4" value="3"> 一般</label>
+                                <label><input type="radio" name="teacher_q4" value="2"> 不太满意</label>
+                                <label><input type="radio" name="teacher_q4" value="1"> 非常不满意</label>
+                            </div>
+                        </div>
+                        <div class="question">
+                            <p>5.您是否经常感到工作压力过大？</p>
+                            <div class="options">
+                                <label><input type="radio" name="teacher_q5" value="5"> 从不</label>
+                                <label><input type="radio" name="teacher_q5" value="4"> 偶尔</label>
+                                <label><input type="radio" name="teacher_q5" value="3"> 有时</label>
+                                <label><input type="radio" name="teacher_q5" value="2"> 经常</label>
+                                <label><input type="radio" name="teacher_q5" value="1"> 总是</label>
+                            </div>
+                        </div>
+                        <div class="question">
+                            <p>6.您与学生的关系如何？</p>
+                            <div class="options">
+                                <label><input type="radio" name="teacher_q6" value="5"> 非常好</label>
+                                <label><input type="radio" name="teacher_q6" value="4"> 比较好</label>
+                                <label><input type="radio" name="teacher_q6" value="3"> 一般</label>
+                                <label><input type="radio" name="teacher_q6" value="2"> 不太好</label>
+                                <label><input type="radio" name="teacher_q6" value="1"> 非常不好</label>
+                            </div>
+                        </div>
+                        <div class="question">
+                            <p>7.您是否有足够的时间进行教学准备？</p>
+                            <div class="options">
+                                <label><input type="radio" name="teacher_q7" value="5"> 非常充足</label>
+                                <label><input type="radio" name="teacher_q7" value="4"> 比较充足</label>
+                                <label><input type="radio" name="teacher_q7" value="3"> 一般</label>
+                                <label><input type="radio" name="teacher_q7" value="2"> 不太充足</label>
+                                <label><input type="radio" name="teacher_q7" value="1"> 非常不充足</label>
+                            </div>
+                        </div>
+                        <div class="question">
+                            <p>8.您是否经常感到疲劳或精力不足？</p>
+                            <div class="options">
+                                <label><input type="radio" name="teacher_q8" value="5"> 从不</label>
+                                <label><input type="radio" name="teacher_q8" value="4"> 偶尔</label>
+                                <label><input type="radio" name="teacher_q8" value="3"> 有时</label>
+                                <label><input type="radio" name="teacher_q8" value="2"> 经常</label>
+                                <label><input type="radio" name="teacher_q8" value="1"> 总是</label>
+                            </div>
+                        </div>
+                        <div class="question">
+                            <p>9.您是否有良好的工作与生活平衡？</p>
+                            <div class="options">
+                                <label><input type="radio" name="teacher_q9" value="5"> 非常平衡</label>
+                                <label><input type="radio" name="teacher_q9" value="4"> 比较平衡</label>
+                                <label><input type="radio" name="teacher_q9" value="3"> 一般</label>
+                                <label><input type="radio" name="teacher_q9" value="2"> 不太平衡</label>
+                                <label><input type="radio" name="teacher_q9" value="1"> 非常不平衡</label>
+                            </div>
+                        </div>
+                        <div class="question">
+                            <p>10.您是否经常与同事交流教学经验？</p>
+                            <div class="options">
+                                <label><input type="radio" name="teacher_q10" value="5"> 经常</label>
+                                <label><input type="radio" name="teacher_q10" value="4"> 有时</label>
+                                <label><input type="radio" name="teacher_q10" value="3"> 偶尔</label>
+                                <label><input type="radio" name="teacher_q10" value="2"> 很少</label>
+                                <label><input type="radio" name="teacher_q10" value="1"> 从不</label>
+                            </div>
+                        </div>
+
+                        <h3>三、开放性问题</h3>
+                        <div class="question">
+                            <p>11.在教学过程中，您遇到的最大挑战是什么？</p>
+                            <div class="options">
+                                <textarea name="teacher_q11" rows="3" placeholder="请在这里写下您的答案"></textarea>
+                            </div>
+                        </div>
+                        <div class="question">
+                            <p>12.您希望获得哪些支持来提升教学效果和心理健康？</p>
+                            <div class="options">
+                                <textarea name="teacher_q12" rows="3" placeholder="请在这里写下您的答案"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="survey-navigation">
+                    <button id="teacher-submit-btn" class="btn-primary">提交测评</button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 老师模块 -->
+        <div id="teacher-module" class="module">
+            <div class="teacher-container">
+                <h2>老师管理界面</h2>
+                <div class="teacher-menu">
+                    <button class="menu-btn active" data-menu="class-data">班级数据</button>
+                    <button class="menu-btn" data-menu="special-children">特殊儿童管理</button>
+                    <button class="menu-btn" data-menu="red-tasks">红色任务布置</button>
+                    <button class="menu-btn" data-menu="user-records">用户记录管理</button>
+                </div>
+                <div class="teacher-content">
+                    <div id="class-data" class="menu-content active">
+                        <h3>班级学生整体数据</h3>
+                        <div class="data-visualization">
+                            <div class="chart-container">
+                                <h4>学生心理特质分布</h4>
+                                <div class="chart-placeholder">饼图：阳光成长型 60% | 特殊需求型 20% | 需要关注型 20%</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="special-children" class="menu-content">
+                        <h3>特殊儿童管理</h3>
+                        <div class="children-list">
+                            <div class="child-item">
+                                <h4>学生1</h4>
+                                <p>类型：特殊需求型</p>
+                                <p>特点：多动倾向</p>
+                            </div>
+                            <div class="child-item">
+                                <h4>学生2</h4>
+                                <p>类型：需要关注型</p>
+                                <p>特点：社交退缩</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="red-tasks" class="menu-content">
+                        <h3>布置班级红色任务</h3>
+                        <div class="task-form">
+                            <div class="form-group">
+                                <label for="task-title">任务标题</label>
+                                <input type="text" id="task-title" placeholder="请输入任务标题">
+                            </div>
+                            <div class="form-group">
+                                <label for="task-content">任务内容</label>
+                                <textarea id="task-content" placeholder="请输入任务内容"></textarea>
+                            </div>
+                            <div class="form-group">
+                                <label for="task-deadline">截止日期</label>
+                                <input type="date" id="task-deadline">
+                            </div>
+                        </div>
+                    </div>
+                    <div id="user-records" class="menu-content">
+                        <h3>用户记录管理</h3>
+                        <div class="records-filter">
+                            <label for="record-role">角色：</label>
+                            <select id="record-role">
+                                <option value="">全部</option>
+                                <option value="student">学生</option>
+                            </select>
+                            <label for="record-type">测评类型：</label>
+                            <select id="record-type">
+                                <option value="">全部</option>
+                                <option value="student">学生测评</option>
+                            </select>
+                            <button id="filter-records-btn" class="btn-sm">筛选</button>
+                        </div>
+                        <div id="records-list" class="records-list">
+                            <!-- 用户记录将在这里显示 -->
+                            <p>加载中...</p>
+                        </div>
+                    </div>
+                </div>
+                <button id="teacher-logout-btn" class="btn-secondary">返回</button>
+            </div>
+        </div>
+        
+        <!-- 项目组模块 -->
+        <div id="admin-module" class="module">
+            <div class="admin-container">
+                <h2>项目组管理界面</h2>
+                <div class="admin-menu">
+                    <button class="menu-btn active" data-menu="all-data">所有数据</button>
+                    <button class="menu-btn" data-menu="resource-management">资源管理</button>
+                    <button class="menu-btn" onclick="showChangePasswordModal()">修改密码</button>
+                </div>
+                <div class="admin-content">
+                    <div id="all-data" class="menu-content active">
+                        <h3>所有数据管理</h3>
+                        <div class="data-visualization">
+                            <div class="chart-container">
+                                <h4>学生心理特质分布</h4>
+                                <div class="chart-placeholder">饼图：阳光成长型 60% | 特殊需求型 20% | 需要关注型 20%</div>
+                            </div>
+                            <div class="chart-container">
+                                <h4>资源包使用数据</h4>
+                                <div class="chart-placeholder">柱状图：红色梦想+探索+协作 40% | 红色包容+坚韧+优势发现 30% | 红色陪伴+归属感+情绪调节 30%</div>
+                            </div>
+                            <div class="chart-container">
+                                <h4>效果反馈数据</h4>
+                                <div class="chart-placeholder">满意度：学生 85%</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="resource-management" class="menu-content">
+                        <h3>资源管理</h3>
+                        <div class="resource-list" id="resource-list">
+                            <div class="resource-item">
+                                <h4>阳光开朗型资源包：社交积极，情绪稳定</h4>
+                                <p>包含：社交技巧指南、情绪管理工具、团队活动建议</p>
+                                <button class="btn-sm">编辑</button>
+                                <button class="btn-sm">删除</button>
+                            </div>
+                            <div class="resource-item">
+                                <h4>内敛害羞型资源包：内心敏感，社交被动</h4>
+                                <p>包含：自我表达练习、社交自信培养、情绪识别工具</p>
+                                <button class="btn-sm">编辑</button>
+                                <button class="btn-sm">删除</button>
+                            </div>
+                            <div class="resource-item">
+                                <h4>孤独疏离型资源包：社交隔离，情绪低落</h4>
+                                <p>包含：社交融入指南、情绪支持工具、亲子沟通建议</p>
+                                <button class="btn-sm">编辑</button>
+                                <button class="btn-sm">删除</button>
+                            </div>
+                            <div class="resource-item">
+                                <h4>压力焦虑型资源包：被期待压垮，自我否定</h4>
+                                <p>包含：压力管理技巧、自我肯定练习、亲子关系改善</p>
+                                <button class="btn-sm">编辑</button>
+                                <button class="btn-sm">删除</button>
+                            </div>
+                            <div class="resource-item">
+                                <h4>乐观自愈型资源包：自我调节，心态积极</h4>
+                                <p>包含：情绪调节工具、目标设定指南、自我激励技巧</p>
+                                <button class="btn-sm">编辑</button>
+                                <button class="btn-sm">删除</button>
+                            </div>
+                            <div class="resource-item">
+                                <h4>矛盾纠结型资源包：情绪波动，自我认知摇摆</h4>
+                                <p>包含：自我探索工具、情绪稳定技巧、决策辅助指南</p>
+                                <button class="btn-sm">编辑</button>
+                                <button class="btn-sm">删除</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <button id="admin-logout-btn" class="btn-secondary">返回</button>
+            </div>
+        </div>
+        
+        <!-- 资源包模块 -->
+        <div id="resource-module" class="module">
+            <div class="resource-container">
+                <h2>资源包</h2>
+                <div id="resource-content">
+                    <!-- 资源包内容将在这里显示 -->
+                </div>
+                <button id="resource-back-btn" class="btn-secondary">返回</button>
+            </div>
+        </div>
+    </div>
+    
+    <script src="script.js"></script>
+</body>
+</html>
